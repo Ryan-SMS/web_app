@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreditWiseAI - سامانه تحلیل ریسک اعتباری</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="loading-spinner" class="loading-spinner-overlay hidden">
+            <div class="spinner"></div>
+            <p>در حال بارگذاری...</p>
+        </div>
+
+        <div id="login-page" class="page active"> <h2 class="title">ورود به سامانه CreditWiseAI</h2>
+            <div class="form-card">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">نام کاربری:</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">رمز عبور:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn primary">ورود</button>
+                    <p id="login-error" class="error-message"></p>
+                </form>
+            </div>
+        </div>
+
+        <div id="main-content" class="hidden">
+            <header class="main-header">
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#" id="nav-predict">پیش‌بینی PD</a></li>
+                        <li><a href="#" id="nav-dashboard">داشبورد تحلیلی</a></li>
+                        <li><a href="#" id="nav-logout">خروج</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <div id="customer-validation-page" class="page hidden">
+                <h2 class="title">اعتبارسنجی مشتری</h2>
+                <div class="form-card">
+                    <form id="pd-prediction-form">
+                        <div class="form-group">
+                            <label for="person_age">سن:</label>
+                            <input type="number" id="person_age" name="person_age" min="18" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="person_gender">جنسیت:</label>
+                            <select id="person_gender" name="person_gender" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="Male">مرد</option>
+                                <option value="Female">زن</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="person_education">تحصیلات:</label>
+                            <select id="person_education" name="person_education" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="High School">دیپلم</option>
+                                <option value="Associate">کاردانی</option>
+                                <option value="Bachelor">لیسانس</option>
+                                <option value="Master">فوق لیسانس</option>
+                                <option value="Doctorate">دکتری</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="person_income">درآمد سالانه (ریال):</label>
+                            <input type="number" id="person_income" name="person_income" min="0" step="1000000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="person_emp_exp">سابقه کاری (سال):</label>
+                            <input type="number" id="person_emp_exp" name="person_emp_exp" min="0" max="60" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="person_home_ownership">وضعیت مالکیت خانه:</label>
+                            <select id="person_home_ownership" name="person_home_ownership" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="Rent">اجاره</option>
+                                <option value="Own">شخصی</option>
+                                <option value="Mortgage">رهن</option>
+                                <option value="Other">سایر</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="loan_amnt">مبلغ وام درخواستی (ریال):</label>
+                            <input type="number" id="loan_amnt" name="loan_amnt" min="1000" step="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loan_intent">هدف از وام:</label>
+                            <select id="loan_intent" name="loan_intent" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="Personal">شخصی</option>
+                                <option value="Education">تحصیلی</option>
+                                <option value="Medical">درمان</option>
+                                <option value="DebtConsolidation">تجمیع بدهی</option>
+                                <option value="HomeImprovement">بازسازی خانه</option>
+                                <option value="Venture">سرمایه‌گذاری</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="loan_int_rate">نرخ سود وام (درصد):</label>
+                            <input type="number" id="loan_int_rate" name="loan_int_rate" min="1" max="30" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loan_percent_income">درصد وام به درآمد:</label>
+                            <input type="number" id="loan_percent_income" name="loan_percent_income" min="0" max="1" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cb_person_cred_hist_length">طول سابقه اعتباری (سال):</label>
+                            <input type="number" id="cb_person_cred_hist_length" name="cb_person_cred_hist_length" min="0" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="credit_score">امتیاز اعتباری:</label>
+                            <input type="number" id="credit_score" name="credit_score" min="300" max="850" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="previous_loan_defaults_on_file">سابقه نکول قبلی:</label>
+                            <select id="previous_loan_defaults_on_file" name="previous_loan_defaults_on_file" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="Yes">بله</option>
+                                <option value="No">خیر</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">بررسی نتایج</button>
+                            <button type="reset" class="btn secondary">بازنشانی اطلاعات</button>
+                        </div>
+                        <p id="prediction-error" class="error-message"></p>
+                    </form>
+                </div>
+
+                <div id="prediction-results" class="hidden">
+                    <h3>نتیجه پیش‌بینی احتمال نکول (PD)</h3>
+                    <p>احتمال نکول (PD): <span id="pd-value">--</span>%</p>
+                    <div class="progress-bar-container">
+                        <div id="pd-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <p>دسته بندی ریسک: <span id="risk-category">--</span></p>
+                </div>
+            </div>
+
+            <div id="dashboard-page" class="page hidden">
+                <h2 class="title">گزارش‌ساز و داشبورد تحلیلی</h2>
+                
+                <div class="filter-card">
+                    <h3>فیلتر گزارش</h3>
+                    <div class="form-group">
+                        <label for="filter-industry">صنعت:</label>
+                        <select id="filter-industry">
+                            <option value="">همه</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-province">استان:</label>
+                        <select id="filter-province">
+                            <option value="">همه</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>محدوده تسهیلات (میلیارد ریال):</label>
+                        <div class="range-slider-group">
+                            <input type="range" id="filter-loan-min" min="0" max="100" value="0">
+                            <span id="loan-min-val">0</span>
+                            <span> تا </span>
+                            <span id="loan-max-val">100</span>
+                            <input type="range" id="filter-loan-max" min="0" max="100" value="100">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>محدوده امتیاز اعتباری:</label>
+                        <div class="range-slider-group">
+                            <input type="range" id="filter-credit-min" min="300" max="850" value="300">
+                            <span id="credit-min-val">300</span>
+                            <span> تا </span>
+                            <span id="credit-max-val">850</span>
+                            <input type="range" id="filter-credit-max" min="300" max="850" value="850">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button id="apply-filter-btn" class="btn primary">اعمال فیلتر</button>
+                        <button id="reset-filter-btn" class="btn secondary">بازنشانی فیلترها</button>
+                    </div>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <h4>متوسط PD پورتفو</h4>
+                        <p id="kpi-avg-pd" class="kpi-value">--%</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h4>نسبت EL به کل تسهیلات</h4>
+                        <p id="kpi-el-ratio" class="kpi-value">--%</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h4>کل EL (میلیارد ریال)</h4>
+                        <p id="kpi-total-el" class="kpi-value">--</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h4>نسبت کفایت سرمایه (CAR)</h4>
+                        <p id="kpi-car" class="kpi-value">--%</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h4>نسبت تسهیلات به سپرده (LTD)</h4>
+                        <p id="kpi-ltd-ratio" class="kpi-value">--</p>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container form-card">
+                        <h3>نمودار تسهیلات غیرجاری (NPL)</h3>
+                        <canvas id="nplChart"></canvas>
+                    </div>
+                    <div class="chart-container form-card">
+                        <h3>تسهیلات بر اساس صنعت</h3>
+                        <canvas id="industryChart"></canvas>
+                    </div>
+                    <div class="chart-container form-card">
+                        <h3>تسهیلات بر اساس استان</h3>
+                        <canvas id="provinceChart"></canvas>
+                    </div>
+                    <div class="chart-container form-card">
+                        <h3>ارزش وثایق بر اساس نوع</h3>
+                        <canvas id="collateralChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
