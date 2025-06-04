@@ -1,6 +1,6 @@
 // --- API Base URL ---
 // IMPORTANT: Replace this with your actual deployed Render API URL
-const API_BASE_URL = "https://creditwiseai.onrender.com"; 
+const API_BASE_URL = "https://creditwiseai.onrender.com";
 
 // --- Page Elements ---
 const loginPage = document.getElementById('login-page');
@@ -44,9 +44,9 @@ const resetFilterBtn = document.getElementById('reset-filter-btn');
 
 // --- Chart Instances ---
 let nplChartInstance, industryChartInstance, provinceChartInstance, collateralChartInstance;
-let assetConcentrationChartInstance;
-let nonPerformingLoansCountChartInstance;
-let nonPerformingLoansAmountChartInstance;
+let assetConcentrationChartInstance; // نمودار جدید: تمرکز انواع وثایق
+let nonPerformingLoansCountChartInstance; // نمودار جدید: تسهیلات غیرجاری در صنایع (تعداد)
+let nonPerformingLoansAmountChartInstance; // نمودار جدید: تسهیلات غیرجاری در صنایع (مبلغ)
 
 // Define a color palette for charts with good contrast
 const chartColors = [
@@ -86,7 +86,7 @@ function showPage(pageElement) {
     console.log("Attempting to show page:", pageElement ? pageElement.id : "null");
     const pages = document.querySelectorAll('.page');
     pages.forEach(page => page.classList.add('hidden')); // مطمئن شوید همه صفحات مخفی می‌شوند
-    
+
     if (pageElement) {
         pageElement.classList.remove('hidden'); // صفحه مورد نظر را نمایش می‌دهد
         pageElement.classList.add('active'); // اطمینان از فعال بودن کلاس active
@@ -116,7 +116,7 @@ loginForm.addEventListener('submit', async (e) => {
         loginError.textContent = '';
         loginPage.classList.add('hidden'); // صفحه ورود را مخفی کن
         mainContent.classList.remove('hidden'); // محتوای اصلی را نمایش بده
-        
+
         showPage(customerValidationPage); // نمایش صفحه اعتبارسنجی مشتری
         setActiveNav(navPredict);
     } else {
@@ -535,338 +535,377 @@ function renderCharts(data) {
 
     // --- نمودارهای جدید ---
 
-    // Asset Concentration Chart (تمرکز انواع وثایق) - از تصویر
-    const assetConcentrationCtx = document.getElementById('assetConcentrationChart').getContext('2d');
-    // فرض می‌کنیم داده‌های این نمودار در data.asset_concentration_chart_data قرار دارند
-    // مثال ساختار داده: [{ type: 'اموال منقول', percentage: 1.31 }, { type: 'اموال غیر منقول', percentage: 19.55 }, ...]
-    assetConcentrationChartInstance = new Chart(assetConcentrationCtx, {
-        type: 'doughnut', // Pie Chart (دایره‌ای) یا Doughnut Chart (دوناتی)
-        data: {
-            labels: data.asset_concentration_chart_data.map(item => item.type),
-            datasets: [{
-                label: 'درصد',
-                data: data.asset_concentration_chart_data.map(item => item.percentage),
-                backgroundColor: chartColors.slice(0, data.asset_concentration_chart_data.length),
-                borderColor: chartBorderColors.slice(0, data.asset_concentration_chart_data.length),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed !== null) {
-                                label += context.parsed + '%';
-                            }
-                            return label;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Non-Performing Loans by Industry (Count) (تسهیلات غیرجاری در صنایع - تعداد) - از تصویر
-    const nonPerformingLoansCountCtx = document.getElementById('nonPerformingLoansCountChart').getContext('2d');
-    // فرض می‌کنیم داده‌های این نمودار در data.non_performing_loans_count_chart_data قرار دارند
-    // مثال ساختار داده: [{ industry: 'انرژی: برق', count: 21.4 }, { industry: 'بهداشت و دارو', count: 13.4 }, ...]
-    nonPerformingLoansCountChartInstance = new Chart(nonPerformingLoansCountCtx, {
-        type: 'bar',
-        data: {
-            labels: data.non_performing_loans_count_chart_data.map(item => item.industry),
-            datasets: [{
-                label: 'درصد تعداد',
-                data: data.non_performing_loans_count_chart_data.map(item => item.count),
-                backgroundColor: chartColors.slice(0, data.non_performing_loans_count_chart_data.length),
-                borderColor: chartBorderColors.slice(0, data.non_performing_loans_count_chart_data.length),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y', // برای نمودار میله‌ای افقی (مشابه Treemap در نمایش عنوان)
-            plugins: {
-                legend: {
-                    display: true,
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.x !== null) {
-                                label += context.parsed.x + '%';
-                            }
-                            return label;
-                        }
-                    }
-                }
+    // Asset Concentration Chart (تمرکز انواع وثایق)
+    if (data.asset_concentration_chart_data) {
+        const assetConcentrationCtx = document.getElementById('assetConcentrationChart').getContext('2d');
+        assetConcentrationChartInstance = new Chart(assetConcentrationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.asset_concentration_chart_data.map(item => item.type),
+                datasets: [{
+                    label: 'درصد',
+                    data: data.asset_concentration_chart_data.map(item => item.percentage),
+                    backgroundColor: chartColors.slice(0, data.asset_concentration_chart_data.length),
+                    borderColor: chartBorderColors.slice(0, data.asset_concentration_chart_data.length),
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'درصد',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        rtl: true,
+                        labels: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
                         }
                     },
-                    ticks: {
-                        font: {
+                    tooltip: {
+                        rtl: true,
+                        titleFont: {
                             family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'صنعت',
-                        font: {
+                        },
+                        bodyFont: {
                             family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Non-Performing Loans by Industry (Amount) (تسهیلات غیرجاری در صنایع - مبلغ) - از تصویر
-    const nonPerformingLoansAmountCtx = document.getElementById('nonPerformingLoansAmountChart').getContext('2d');
-    // فرض می‌کنیم داده‌های این نمودار در data.non_performing_loans_amount_chart_data قرار دارند
-    // مثال ساختار داده: [{ industry: 'معادن و فلزات', amount: 0.8 }, { industry: 'بهداشت و دارو', amount: 0.8 }, ...]
-    nonPerformingLoansAmountChartInstance = new Chart(nonPerformingLoansAmountCtx, {
-        type: 'bar',
-        data: {
-            labels: data.non_performing_loans_amount_chart_data.map(item => item.industry),
-            datasets: [{
-                label: 'درصد مبلغ',
-                data: data.non_performing_loans_amount_chart_data.map(item => item.amount),
-                backgroundColor: chartColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(), // استفاده از پالت معکوس
-                borderColor: chartBorderColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y', // برای نمودار میله‌ای افقی
-            plugins: {
-                legend: {
-                    display: true,
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.x !== null) {
-                                label += context.parsed.x + '%';
-                            }
-                            return label;
-                        }
-                    }
-                }
+
+    // Non-Performing Loans by Industry (Count) (تسهیلات غیرجاری در صنایع - تعداد)
+    if (data.non_performing_loans_count_chart_data) {
+        const nonPerformingLoansCountCtx = document.getElementById('nonPerformingLoansCountChart').getContext('2d');
+        nonPerformingLoansCountChartInstance = new Chart(nonPerformingLoansCountCtx, {
+            type: 'bar',
+            data: {
+                labels: data.non_performing_loans_count_chart_data.map(item => item.industry),
+                datasets: [{
+                    label: 'درصد تعداد',
+                    data: data.non_performing_loans_count_chart_data.map(item => item.count),
+                    backgroundColor: chartColors.slice(0, data.non_performing_loans_count_chart_data.length),
+                    borderColor: chartBorderColors.slice(0, data.non_performing_loans_count_chart_data.length),
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // برای نمودار میله‌ای افقی
+                plugins: {
+                    legend: {
                         display: true,
-                        text: 'درصد',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
+                        rtl: true,
+                        labels: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
                         }
                     },
-                    ticks: {
-                        font: {
+                    tooltip: {
+                        rtl: true,
+                        titleFont: {
                             family: 'Vazirmatn, Arial, sans-serif'
+                        },
+                        bodyFont: {
+                            family: 'Vazirmatn, Arial, sans-serif'
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.x !== null) {
+                                    label += context.parsed.x + '%';
+                                }
+                                return label;
+                            }
                         }
                     }
                 },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'صنعت',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'درصد',
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
                         }
                     },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'صنعت',
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+
+    // Non-Performing Loans by Industry (Amount) (تسهیلات غیرجاری در صنایع - مبلغ)
+    if (data.non_performing_loans_amount_chart_data) {
+        const nonPerformingLoansAmountCtx = document.getElementById('nonPerformingLoansAmountChart').getContext('2d');
+        nonPerformingLoansAmountChartInstance = new Chart(nonPerformingLoansAmountCtx, {
+            type: 'bar',
+            data: {
+                labels: data.non_performing_loans_amount_chart_data.map(item => item.industry),
+                datasets: [{
+                    label: 'درصد مبلغ',
+                    data: data.non_performing_loans_amount_chart_data.map(item => item.amount),
+                    backgroundColor: chartColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
+                    borderColor: chartBorderColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // برای نمودار میله‌ای افقی
+                plugins: {
+                    legend: {
+                        display: true,
+                        rtl: true,
+                        labels: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        rtl: true,
+                        titleFont: {
+                            family: 'Vazirmatn, Arial, sans-serif'
+                        },
+                        bodyFont: {
+                            family: 'Vazirmatn, Arial, sans-serif'
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.x !== null) {
+                                    label += context.parsed.x + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'درصد',
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'صنعت',
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Vazirmatn, Arial, sans-serif'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
+
 
 // --- Filter and Parametric Reporting Logic ---
 function populateFilterOptions(data) {
     // Populate Industry Select
-    filterIndustrySelect.innerHTML = '<option value="">همه</option>';
-    data.available_industries.forEach(industry => {
-        const option = document.createElement('option');
-        option.value = industry;
-        option.textContent = industry;
-        filterIndustrySelect.appendChild(option);
-    });
+    if (data.available_industries) {
+        const currentIndustry = filterIndustrySelect.value;
+        filterIndustrySelect.innerHTML = '<option value="">همه</option>';
+        data.available_industries.forEach(industry => {
+            const option = document.createElement('option');
+            option.value = industry;
+            option.textContent = industry;
+            filterIndustrySelect.appendChild(option);
+        });
+        filterIndustrySelect.value = currentIndustry; // Restore selected value if any
+    }
+
 
     // Populate Province Select
-    filterProvinceSelect.innerHTML = '<option value="">همه</option>';
-    data.available_provinces.forEach(province => {
-        const option = document.createElement('option');
-        option.value = province;
-        option.textContent = province;
-        filterProvinceSelect.appendChild(option);
-    });
+    if (data.available_provinces) {
+        const currentProvince = filterProvinceSelect.value;
+        filterProvinceSelect.innerHTML = '<option value="">همه</option>';
+        data.available_provinces.forEach(province => {
+            const option = document.createElement('option');
+            option.value = province;
+            option.textContent = province;
+            filterProvinceSelect.appendChild(option);
+        });
+        filterProvinceSelect.value = currentProvince; // Restore selected value if any
+    }
+
 
     // Set slider ranges based on fetched data
     // Convert loan amounts to Billions for display in sliders
-    filterLoanMinInput.min = (data.min_loan_amount / 1_000_000_000).toFixed(0);
-    filterLoanMinInput.max = (data.max_loan_amount / 1_000_000_000).toFixed(0);
-    filterLoanMaxInput.min = (data.min_loan_amount / 1_000_000_000).toFixed(0);
-    filterLoanMaxInput.max = (data.max_loan_amount / 1_000_000_000).toFixed(0);
-    
-    filterCreditMinInput.min = data.min_credit_score;
-    filterCreditMinInput.max = data.max_credit_score;
-    filterCreditMaxInput.min = data.min_credit_score;
-    filterCreditMaxInput.max = data.max_credit_score;
-
-    // Set initial values for range sliders to full range (only if not already filtered by user)
-    // This check is important to prevent resetting user-applied filters immediately
-    if (filterIndustrySelect.value === '' && filterProvinceSelect.value === '' && 
-        parseFloat(filterLoanMinInput.value) === parseFloat(filterLoanMinInput.min) &&
-        parseFloat(filterLoanMaxInput.value) === parseFloat(filterLoanMaxInput.max) &&
-        parseInt(filterCreditMinInput.value) === parseInt(filterCreditMinInput.min) &&
-        parseInt(filterCreditMaxInput.value) === parseInt(filterCreditMaxInput.max)) {
-            
-        filterLoanMinInput.value = filterLoanMinInput.min;
-        filterLoanMaxInput.value = filterLoanMaxInput.max;
-        filterCreditMinInput.value = filterCreditMinInput.min;
-        filterCreditMaxInput.value = filterCreditMaxInput.max;
+    if (data.min_loan_amount !== undefined && data.max_loan_amount !== undefined) {
+        const minLoanBillions = (data.min_loan_amount / 1_000_000_000).toFixed(0);
+        const maxLoanBillions = (data.max_loan_amount / 1_000_000_000).toFixed(0);
+        filterLoanMinInput.min = minLoanBillions;
+        filterLoanMinInput.max = maxLoanBillions;
+        filterLoanMaxInput.min = minLoanBillions;
+        filterLoanMaxInput.max = maxLoanBillions;
     }
-    updateRangeSliderValuesDisplay(); // Initial update of display values
+
+    if (data.min_credit_score !== undefined && data.max_credit_score !== undefined) {
+        filterCreditMinInput.min = data.min_credit_score;
+        filterCreditMinInput.max = data.max_credit_score;
+        filterCreditMaxInput.min = data.min_credit_score;
+        filterCreditMaxInput.max = data.max_credit_score;
+    }
+
+    // Set initial values for range sliders to full range only if they are not already set
+    // or if they represent the "all" state (e.g., after a reset or on first load without active filters)
+    const noFiltersActive = filterIndustrySelect.value === '' &&
+                            filterProvinceSelect.value === '' &&
+                            filterLoanMinInput.value === filterLoanMinInput.min &&
+                            filterLoanMaxInput.value === filterLoanMaxInput.max &&
+                            filterCreditMinInput.value === filterCreditMinInput.min &&
+                            filterCreditMaxInput.value === filterCreditMaxInput.max;
+
+    const slidersNotSet = filterLoanMinInput.value === '' || filterLoanMaxInput.value === '' ||
+                          filterCreditMinInput.value === '' || filterCreditMaxInput.value === '';
+
+    if (noFiltersActive || slidersNotSet) {
+        if (filterLoanMinInput.min) filterLoanMinInput.value = filterLoanMinInput.min;
+        if (filterLoanMaxInput.max) filterLoanMaxInput.value = filterLoanMaxInput.max;
+        if (filterCreditMinInput.min) filterCreditMinInput.value = filterCreditMinInput.min;
+        if (filterCreditMaxInput.max) filterCreditMaxInput.value = filterCreditMaxInput.max;
+    }
 }
+
 
 function updateRangeSliderValuesDisplay() {
-    loanMinValSpan.textContent = filterLoanMinInput.value;
-    loanMaxValSpan.textContent = filterLoanMaxInput.value;
-    creditMinValSpan.textContent = filterCreditMinInput.value;
-    creditMaxValSpan.textContent = filterCreditMaxInput.value;
+    if (filterLoanMinInput.value) {
+        loanMinValSpan.textContent = `${parseFloat(filterLoanMinInput.value).toLocaleString('fa-IR')} میلیارد ریال`;
+    } else if (filterLoanMinInput.min) {
+         loanMinValSpan.textContent = `${parseFloat(filterLoanMinInput.min).toLocaleString('fa-IR')} میلیارد ریال`;
+    }
+
+    if (filterLoanMaxInput.value) {
+        loanMaxValSpan.textContent = `${parseFloat(filterLoanMaxInput.value).toLocaleString('fa-IR')} میلیارد ریال`;
+    } else if (filterLoanMaxInput.max) {
+        loanMaxValSpan.textContent = `${parseFloat(filterLoanMaxInput.max).toLocaleString('fa-IR')} میلیارد ریال`;
+    }
+
+
+    if (filterCreditMinInput.value) {
+        creditMinValSpan.textContent = parseInt(filterCreditMinInput.value).toLocaleString('fa-IR');
+    } else if (filterCreditMinInput.min) {
+        creditMinValSpan.textContent = parseInt(filterCreditMinInput.min).toLocaleString('fa-IR');
+    }
+
+    if (filterCreditMaxInput.value) {
+        creditMaxValSpan.textContent = parseInt(filterCreditMaxInput.value).toLocaleString('fa-IR');
+    } else if (filterCreditMaxInput.max) {
+        creditMaxValSpan.textContent = parseInt(filterCreditMaxInput.max).toLocaleString('fa-IR');
+    }
 }
 
-// Event listeners for range sliders to update displayed values
-filterLoanMinInput.addEventListener('input', () => {
-    updateRangeSliderValuesDisplay();
-    if (parseInt(filterLoanMinInput.value) > parseInt(filterLoanMaxInput.value)) {
-        filterLoanMaxInput.value = filterLoanMinInput.value;
-        updateRangeSliderValuesDisplay();
-    }
-});
-filterLoanMaxInput.addEventListener('input', () => {
-    updateRangeSliderValuesDisplay();
-    if (parseInt(filterLoanMaxInput.value) < parseInt(filterLoanMinInput.value)) {
-        filterLoanMinInput.value = filterLoanMaxInput.value;
-        updateRangeSliderValuesDisplay();
-    }
-});
-
-filterCreditMinInput.addEventListener('input', () => {
-    updateRangeSliderValuesDisplay();
-    if (parseInt(filterCreditMinInput.value) > parseInt(filterCreditMaxInput.value)) {
-        filterCreditMaxInput.value = filterCreditMinInput.value;
-        updateRangeSliderValuesDisplay();
-    }
-});
-filterCreditMaxInput.addEventListener('input', () => {
-    updateRangeSliderValuesDisplay();
-    if (parseInt(filterCreditMaxInput.value) < parseInt(filterCreditMinInput.value)) {
-        filterCreditMinInput.value = filterCreditMaxInput.value;
-        updateRangeSliderValuesDisplay();
-    }
-});
+// Update display on slider input
+filterLoanMinInput.addEventListener('input', updateRangeSliderValuesDisplay);
+filterLoanMaxInput.addEventListener('input', updateRangeSliderValuesDisplay);
+filterCreditMinInput.addEventListener('input', updateRangeSliderValuesDisplay);
+filterCreditMaxInput.addEventListener('input', updateRangeSliderValuesDisplay);
 
 
 applyFilterBtn.addEventListener('click', () => {
     const filters = {
         industry: filterIndustrySelect.value,
         province: filterProvinceSelect.value,
-        // Convert slider values back to Rials from Billions for API
-        min_loan: parseFloat(filterLoanMinInput.value) * 1_000_000_000, 
-        max_loan: parseFloat(filterLoanMaxInput.value) * 1_000_000_000,
-        min_credit: parseInt(filterCreditMinInput.value),
-        max_credit: parseInt(filterCreditMaxInput.value)
+        loan_min: filterLoanMinInput.value ? parseFloat(filterLoanMinInput.value) * 1_000_000_000 : null,
+        loan_max: filterLoanMaxInput.value ? parseFloat(filterLoanMaxInput.value) * 1_000_000_000 : null,
+        credit_score_min: filterCreditMinInput.value ? parseInt(filterCreditMinInput.value) : null,
+        credit_score_max: filterCreditMaxInput.value ? parseInt(filterCreditMaxInput.value) : null,
     };
     fetchDashboardData(filters);
 });
 
 resetFilterBtn.addEventListener('click', () => {
-    // Reset select inputs
     filterIndustrySelect.value = '';
     filterProvinceSelect.value = '';
-    
-    // Trigger a fetch with no filters, which will also re-populate sliders to their full range
-    fetchDashboardData({}); 
+
+    if (filterLoanMinInput.min) filterLoanMinInput.value = filterLoanMinInput.min;
+    if (filterLoanMaxInput.max) filterLoanMaxInput.value = filterLoanMaxInput.max;
+    if (filterCreditMinInput.min) filterCreditMinInput.value = filterCreditMinInput.min;
+    if (filterCreditMaxInput.max) filterCreditMaxInput.value = filterCreditMaxInput.max;
+
+    updateRangeSliderValuesDisplay();
+    fetchDashboardData(); // Fetch with no filters
+});
+
+// Initial call to fetch data when the dashboard is first loaded (if dashboard is the default page after login)
+// Or ensure fetchDashboardData is called when navDashboard is clicked (which it is).
+// Call updateRangeSliderValuesDisplay on load to set initial text based on slider default values
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (auth logic)
+    if (localStorage.getItem('isAuthenticated') === 'true') {
+        // ...
+        // If dashboard is shown by default, data will be fetched by navDashboard click handler or explicitly.
+        // For now, ensure sliders display correctly if dashboard is the first view.
+        if (dashboardPage.classList.contains('active') || (!loginPage.classList.contains('hidden') && mainContent.classList.contains('hidden'))) {
+            // If dashboard is potentially active on load, ensure its filters and displays are initialized
+           // This is now better handled by fetchDashboardData -> populateFilterOptions -> updateRangeSliderValuesDisplay
+        }
+    }
+     // Initial population of slider display text
+    updateRangeSliderValuesDisplay();
 });
