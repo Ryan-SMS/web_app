@@ -543,8 +543,8 @@ function renderCharts(data) {
             data: {
                 labels: data.asset_concentration_chart_data.map(item => item.type),
                 datasets: [{
-                    label: 'درصد',
-                    data: data.asset_concentration_chart_data.map(item => item.percentage),
+                    labels: data.asset_concentration_chart_data.map(item => item.label),
+                    data: data.asset_concentration_chart_data.map(item => item.value),
                     backgroundColor: chartColors.slice(0, data.asset_concentration_chart_data.length),
                     borderColor: chartBorderColors.slice(0, data.asset_concentration_chart_data.length),
                     borderWidth: 1
@@ -598,8 +598,8 @@ function renderCharts(data) {
             data: {
                 labels: data.non_performing_loans_count_chart_data.map(item => item.industry),
                 datasets: [{
-                    label: 'درصد تعداد',
-                    data: data.non_performing_loans_count_chart_data.map(item => item.count),
+                    labels: data.non_performing_loans_by_industry_count_chart_data.map(item => item.label),
+                    data: data.non_performing_loans_by_industry_count_chart_data.map(item => item.value),
                     backgroundColor: chartColors.slice(0, data.non_performing_loans_count_chart_data.length),
                     borderColor: chartBorderColors.slice(0, data.non_performing_loans_count_chart_data.length),
                     borderWidth: 1
@@ -684,8 +684,8 @@ function renderCharts(data) {
             data: {
                 labels: data.non_performing_loans_amount_chart_data.map(item => item.industry),
                 datasets: [{
-                    label: 'درصد مبلغ',
-                    data: data.non_performing_loans_amount_chart_data.map(item => item.amount),
+                    labels: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.label),
+                    data: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.value),
                     backgroundColor: chartColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
                     borderColor: chartBorderColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
                     borderWidth: 1
