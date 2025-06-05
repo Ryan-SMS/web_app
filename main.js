@@ -44,9 +44,9 @@ const resetFilterBtn = document.getElementById('reset-filter-btn');
 
 // --- Chart Instances ---
 let nplChartInstance, industryChartInstance, provinceChartInstance, collateralChartInstance;
-let assetConcentrationChartInstance; // نمودار جدید: تمرکز انواع وثایق
-let nonPerformingLoansCountChartInstance; // نمودار جدید: تسهیلات غیرجاری در صنایع (تعداد)
-let nonPerformingLoansAmountChartInstance; // نمودار جدید: تسهیلات غیرجاری در صنایع (مبلغ)
+let assetConcentrationChartInstance; // ن تمرکز انواع وثایق
+let nonPerformingLoansCountChartInstance; //  تسهیلات غیرجاری در صنایع (تعداد)
+let nonPerformingLoansAmountChartInstance; //  تسهیلات غیرجاری در صنایع (مبلغ)
 
 // Define a color palette for charts with good contrast
 const chartColors = [
