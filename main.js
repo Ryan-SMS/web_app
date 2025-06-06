@@ -44,7 +44,7 @@ const resetFilterBtn = document.getElementById('reset-filter-btn');
 
 // --- Chart Instances ---
 let nplChartInstance, industryChartInstance, provinceChartInstance, collateralChartInstance;
-let assetConcentrationChartInstance; // ن تمرکز انواع وثایق
+let assetConcentrationChartInstance; // تمرکز انواع وثایق
 let nonPerformingLoansCountChartInstance; //  تسهیلات غیرجاری در صنایع (تعداد)
 let nonPerformingLoansAmountChartInstance; //  تسهیلات غیرجاری در صنایع (مبلغ)
 
