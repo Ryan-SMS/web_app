@@ -278,33 +278,41 @@ function renderCharts(data) {
 
     // 📈 NPL Chart
     const nplCtx = document.getElementById('nplChart').getContext('2d');
-    console.log("✅ NPL Raw Data:", JSON.stringify(data.npl_chart_data, null, 2));
     nplChartInstance = new Chart(nplCtx, {
-        type: 'line',
+        type: 'pie',
         data: {
-            labels: data.npl_chart_data.map(item => item.date),
+            labels: data.npl_chart_data.map(item => item.label),
             datasets: [{
-                label: 'درصد تسهیلات غیرجاری',
-                data: data.npl_chart_data.map(item => item.percentage),
-                borderColor: chartColors[0],
-                backgroundColor: chartColors[0].replace('0.8', '0.2'),
-                fill: true,
-                tension: 0.1
+                label: 'مبلغ تسهیلات غیرجاری (میلیارد ریال)',
+                data: data.npl_chart_data.map(item => item.value),
+                backgroundColor: chartColors.slice(0, data.npl_chart_data.length),
+                borderColor: chartBorderColors.slice(0, data.npl_chart_data.length),
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: true, rtl: true },
-                tooltip: { rtl: true }
-            },
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'درصد' } },
-                x: { title: { display: true, text: 'تاریخ' } }
+                legend: {
+                    position: 'top',
+                    rtl: true,
+                    labels: {
+                        font: {
+                            family: 'Vazirmatn, Arial, sans-serif'
+                        }
+                    }
+                },
+                tooltip: {
+                    rtl: true,
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed.toLocaleString()} میلیارد ریال`
+                    }
+                }
             }
         }
     });
+
 
     // 📊 Industry Chart
     const industryCtx = document.getElementById('industryChart').getContext('2d');
