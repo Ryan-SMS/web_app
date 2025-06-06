@@ -278,6 +278,7 @@ function renderCharts(data) {
 
     // 📈 NPL Chart
     const nplCtx = document.getElementById('nplChart').getContext('2d');
+    console.log("✅ NPL Raw Data:", JSON.stringify(data.npl_chart_data, null, 2));
     nplChartInstance = new Chart(nplCtx, {
         type: 'line',
         data: {
