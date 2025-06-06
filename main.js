@@ -1,5 +1,4 @@
 // --- API Base URL ---
-// IMPORTANT: Replace this with your actual deployed Render API URL
 const API_BASE_URL = "https://creditwiseai.onrender.com";
 
 // --- Page Elements ---
@@ -267,19 +266,16 @@ function updateKPIs(kpis) {
 }
 
 function renderCharts(data) {
-    console.log("Rendering charts with data:", data);
-
-    // Destroy existing chart instances if they exist
+    // حذف نمودارهای قبلی
     if (nplChartInstance) nplChartInstance.destroy();
     if (industryChartInstance) industryChartInstance.destroy();
     if (provinceChartInstance) provinceChartInstance.destroy();
     if (collateralChartInstance) collateralChartInstance.destroy();
-    if (assetConcentrationChartInstance) assetConcentrationChartInstance.destroy(); // جدید
-    if (nonPerformingLoansCountChartInstance) nonPerformingLoansCountChartInstance.destroy(); // جدید
-    if (nonPerformingLoansAmountChartInstance) nonPerformingLoansAmountChartInstance.destroy(); // جدید
+    if (assetConcentrationChartInstance) assetConcentrationChartInstance.destroy();
+    if (nonPerformingLoansCountChartInstance) nonPerformingLoansCountChartInstance.destroy();
+    if (nonPerformingLoansAmountChartInstance) nonPerformingLoansAmountChartInstance.destroy();
 
-
-    // NPL Chart (تسهیلات غیرجاری)
+    // 📈 NPL Chart
     const nplCtx = document.getElementById('nplChart').getContext('2d');
     nplChartInstance = new Chart(nplCtx, {
         type: 'line',
@@ -288,8 +284,8 @@ function renderCharts(data) {
             datasets: [{
                 label: 'درصد تسهیلات غیرجاری',
                 data: data.npl_chart_data.map(item => item.percentage),
-                borderColor: chartColors[0], // استفاده از رنگ پالت
-                backgroundColor: chartColors[0].replace('0.8', '0.2'), // کمرنگ‌تر برای پس‌زمینه
+                borderColor: chartColors[0],
+                backgroundColor: chartColors[0].replace('0.8', '0.2'),
                 fill: true,
                 tension: 0.1
             }]
@@ -298,212 +294,75 @@ function renderCharts(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: true,
-                    rtl: true, // برای RTL
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif' // استفاده از فونت فارسی
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true, // برای RTL
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    }
-                }
+                legend: { display: true, rtl: true },
+                tooltip: { rtl: true }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'درصد',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'تاریخ',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'درصد' } },
+                x: { title: { display: true, text: 'تاریخ' } }
             }
         }
     });
 
-    // Industry Chart (تسهیلات بر اساس صنعت)
+    // 📊 Industry Chart
     const industryCtx = document.getElementById('industryChart').getContext('2d');
     industryChartInstance = new Chart(industryCtx, {
-        type: 'bar', // یا 'pie' / 'doughnut'
+        type: 'bar',
         data: {
-            labels: data.portfolio_by_industry_chart_data.map(item => item.industry),
+            labels: data.portfolio_by_industry_chart_data.map(item => item.label),
             datasets: [{
                 label: 'مبلغ تسهیلات (میلیارد ریال)',
-                data: data.portfolio_by_industry_chart_data.map(item => item.amount),
-                backgroundColor: chartColors.slice(0, data.portfolio_by_industry_chart_data.length), // استفاده از پالت
-                borderColor: chartBorderColors.slice(0, data.portfolio_by_industry_chart_data.length),
+                data: data.portfolio_by_industry_chart_data.map(item => item.value),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    }
-                }
-            },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'مبلغ (میلیارد ریال)',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'صنعت',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'مبلغ (میلیارد ریال)' } },
+                x: { title: { display: true, text: 'صنعت' } }
             }
         }
     });
 
-    // Province Chart (تسهیلات بر اساس استان)
+    // 📍 Province Chart
     const provinceCtx = document.getElementById('provinceChart').getContext('2d');
     provinceChartInstance = new Chart(provinceCtx, {
-        type: 'bar', // یا 'pie' / 'doughnut'
+        type: 'bar',
         data: {
-            labels: data.portfolio_by_province_chart_data.map(item => item.province),
+            labels: data.portfolio_by_province_chart_data.map(item => item.label),
             datasets: [{
                 label: 'مبلغ تسهیلات (میلیارد ریال)',
-                data: data.portfolio_by_province_chart_data.map(item => item.amount),
-                backgroundColor: chartColors.slice(0, data.portfolio_by_province_chart_data.length).reverse(), // استفاده از پالت معکوس برای تنوع بیشتر
-                borderColor: chartBorderColors.slice(0, data.portfolio_by_province_chart_data.length).reverse(),
+                data: data.portfolio_by_province_chart_data.map(item => item.value),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                tooltip: {
-                    rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    }
-                }
-            },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'مبلغ (میلیارد ریال)',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'استان',
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    },
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'مبلغ (میلیارد ریال)' } },
+                x: { title: { display: true, text: 'استان' } }
             }
         }
     });
 
-    // Collateral Chart (ارزش وثایق)
+    // 🏦 Collateral Chart
     const collateralCtx = document.getElementById('collateralChart').getContext('2d');
     collateralChartInstance = new Chart(collateralCtx, {
-        type: 'pie', // یا 'doughnut'
+        type: 'pie',
         data: {
-            labels: data.collateral_type_chart_data.map(item => item.type),
+            labels: data.collateral_type_chart_data.map(item => item.label),
             datasets: [{
                 label: 'ارزش وثیقه',
                 data: data.collateral_type_chart_data.map(item => item.value),
-                backgroundColor: chartColors.slice(0, data.collateral_type_chart_data.length),
-                borderColor: chartBorderColors.slice(0, data.collateral_type_chart_data.length),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
                 borderWidth: 1
             }]
         },
@@ -511,257 +370,110 @@ function renderCharts(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'top',
-                    rtl: true,
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        }
-                    }
-                },
+                legend: { position: 'top', rtl: true },
+                tooltip: { rtl: true }
+            }
+        }
+    });
+
+    // 🧭 Asset Concentration Chart
+    const assetConcentrationCtx = document.getElementById('assetConcentrationChart').getContext('2d');
+    assetConcentrationChartInstance = new Chart(assetConcentrationCtx, {
+        type: 'doughnut',
+        data: {
+            labels: data.asset_concentration_chart_data.map(item => item.label),
+            datasets: [{
+                label: 'درصد تمرکز',
+                data: data.asset_concentration_chart_data.map(item => item.value),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', rtl: true },
                 tooltip: {
                     rtl: true,
-                    titleFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
-                    },
-                    bodyFont: {
-                        family: 'Vazirmatn, Arial, sans-serif'
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed}%`
                     }
                 }
             }
         }
     });
 
-    // --- نمودارهای جدید ---
-
-    // Asset Concentration Chart (تمرکز انواع وثایق)
-    if (data.asset_concentration_chart_data) {
-        const assetConcentrationCtx = document.getElementById('assetConcentrationChart').getContext('2d');
-        assetConcentrationChartInstance = new Chart(assetConcentrationCtx, {
-            type: 'doughnut',
-            data: {
-                labels: data.asset_concentration_chart_data.map(item => item.type),
-                datasets: [{
-                    labels: data.asset_concentration_chart_data.map(item => item.label),
-                    data: data.asset_concentration_chart_data.map(item => item.value),
-                    backgroundColor: chartColors.slice(0, data.asset_concentration_chart_data.length),
-                    borderColor: chartBorderColors.slice(0, data.asset_concentration_chart_data.length),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        rtl: true,
-                        labels: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        titleFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        bodyFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed !== null) {
-                                    label += context.parsed + '%';
-                                }
-                                return label;
-                            }
-                        }
+    // 🧮 NPL by Industry - Count
+    const countCtx = document.getElementById('nonPerformingLoansCountChart').getContext('2d');
+    nonPerformingLoansCountChartInstance = new Chart(countCtx, {
+        type: 'bar',
+        data: {
+            labels: data.non_performing_loans_by_industry_count_chart_data.map(item => item.label),
+            datasets: [{
+                label: 'درصد تعداد',
+                data: data.non_performing_loans_by_industry_count_chart_data.map(item => item.value),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    rtl: true,
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed.x}%`
                     }
                 }
-            }
-        });
-    }
-
-
-    // Non-Performing Loans by Industry (Count) (تسهیلات غیرجاری در صنایع - تعداد)
-    if (data.non_performing_loans_count_chart_data) {
-        const nonPerformingLoansCountCtx = document.getElementById('nonPerformingLoansCountChart').getContext('2d');
-        nonPerformingLoansCountChartInstance = new Chart(nonPerformingLoansCountCtx, {
-            type: 'bar',
-            data: {
-                labels: data.non_performing_loans_count_chart_data.map(item => item.industry),
-                datasets: [{
-                    labels: data.non_performing_loans_by_industry_count_chart_data.map(item => item.label),
-                    data: data.non_performing_loans_by_industry_count_chart_data.map(item => item.value),
-                    backgroundColor: chartColors.slice(0, data.non_performing_loans_count_chart_data.length),
-                    borderColor: chartBorderColors.slice(0, data.non_performing_loans_count_chart_data.length),
-                    borderWidth: 1
-                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y', // برای نمودار میله‌ای افقی
-                plugins: {
-                    legend: {
-                        display: true,
-                        rtl: true,
-                        labels: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        titleFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        bodyFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.x !== null) {
-                                    label += context.parsed.x + '%';
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'درصد',
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'صنعت',
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
+            scales: {
+                x: { beginAtZero: true, title: { display: true, text: 'درصد' } },
+                y: { title: { display: true, text: 'صنعت' } }
+            }
+        }
+    });
+
+    // 💰 NPL by Industry - Amount
+    const amountCtx = document.getElementById('nonPerformingLoansAmountChart').getContext('2d');
+    nonPerformingLoansAmountChartInstance = new Chart(amountCtx, {
+        type: 'bar',
+        data: {
+            labels: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.label),
+            datasets: [{
+                label: 'درصد مبلغ',
+                data: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.value),
+                backgroundColor: chartColors,
+                borderColor: chartBorderColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    rtl: true,
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed.x}%`
                     }
                 }
-            }
-        });
-    }
-
-    // Non-Performing Loans by Industry (Amount) (تسهیلات غیرجاری در صنایع - مبلغ)
-    if (data.non_performing_loans_amount_chart_data) {
-        const nonPerformingLoansAmountCtx = document.getElementById('nonPerformingLoansAmountChart').getContext('2d');
-        nonPerformingLoansAmountChartInstance = new Chart(nonPerformingLoansAmountCtx, {
-            type: 'bar',
-            data: {
-                labels: data.non_performing_loans_amount_chart_data.map(item => item.industry),
-                datasets: [{
-                    labels: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.label),
-                    data: data.non_performing_loans_by_industry_amount_chart_data.map(item => item.value),
-                    backgroundColor: chartColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
-                    borderColor: chartBorderColors.slice(0, data.non_performing_loans_amount_chart_data.length).reverse(),
-                    borderWidth: 1
-                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y', // برای نمودار میله‌ای افقی
-                plugins: {
-                    legend: {
-                        display: true,
-                        rtl: true,
-                        labels: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        titleFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        bodyFont: {
-                            family: 'Vazirmatn, Arial, sans-serif'
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.x !== null) {
-                                    label += context.parsed.x + '%';
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'درصد',
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'صنعت',
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Vazirmatn, Arial, sans-serif'
-                            }
-                        }
-                    }
-                }
+            scales: {
+                x: { beginAtZero: true, title: { display: true, text: 'درصد' } },
+                y: { title: { display: true, text: 'صنعت' } }
             }
-        });
-    }
+        }
+    });
 }
+
 
 
 // --- Filter and Parametric Reporting Logic ---
