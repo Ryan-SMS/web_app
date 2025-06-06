@@ -244,6 +244,7 @@ async function fetchDashboardData(filters = {}) {
             throw new Error(`خطا در دریافت داده‌های داشبورد: ${response.status}`);
         }
         const data = await response.json();
+        console.log("✅ داده‌های دریافتی کامل:", JSON.stringify(data, null, 2));
         console.log("Dashboard Data:", data); // برای دیباگ داده‌های دریافتی
         updateKPIs(data.kpis);
         renderCharts(data); // تابع رندر چارت‌ها
