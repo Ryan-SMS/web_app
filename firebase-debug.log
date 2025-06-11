@@ -1,0 +1,25 @@
+[debug] [2025-06-07T10:07:41.711Z] ----------------------------------------------------------------------
+[debug] [2025-06-07T10:07:41.713Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\USER\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list --debug
+[debug] [2025-06-07T10:07:41.714Z] CLI Version:   14.6.0
+[debug] [2025-06-07T10:07:41.714Z] Platform:      win32
+[debug] [2025-06-07T10:07:41.714Z] Node Version:  v22.15.1
+[debug] [2025-06-07T10:07:41.714Z] Time:          Sat Jun 07 2025 13:37:41 GMT+0330 (Iran Standard Time)
+[debug] [2025-06-07T10:07:41.714Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-07T10:07:41.716Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-06-07T10:07:41.767Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-07T10:07:41.768Z] > authorizing via signed-in user (salehimehd@gmail.com)
+[debug] [2025-06-07T10:07:41.771Z] Checked if tokens are valid: true, expires at: 1749294441973
+[debug] [2025-06-07T10:07:41.771Z] Checked if tokens are valid: true, expires at: 1749294441973
+[debug] [2025-06-07T10:07:41.777Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2025-06-07T10:07:42.040Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: Client network socket disconnected before secure TLS connection was established
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2025-06-07T10:07:42.042Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[debug] [2025-06-07T10:07:42.413Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 403
+[debug] [2025-06-07T10:07:42.414Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2025-06-07T10:07:42.415Z] Unable to parse JSON: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+[debug] [2025-06-07T10:07:42.417Z] FirebaseError: Unable to parse JSON: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at RetryOperation._fn (C:\Users\USER\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:279:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.

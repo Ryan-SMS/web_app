@@ -4,8 +4,8 @@ const API_BASE_URL = "https://creditwiseai.onrender.com";
 // --- Page Elements ---
 const loginPage = document.getElementById('login-page');
 const mainContent = document.getElementById('main-content');
-const customerValidationPage = document.getElementById('customer-validation-page'); // صفحه اعتبارسنجی مشتری (پیش‌بینی PD)
-const dashboardPage = document.getElementById('dashboard-page'); // صفحه داشبورد تحلیلی
+const customerValidationPage = document.getElementById('customer-validation-page');
+const dashboardPage = document.getElementById('dashboard-page');
 
 const loginForm = document.getElementById('login-form');
 const pdPredictionForm = document.getElementById('pd-prediction-form');
@@ -27,7 +27,7 @@ const kpiTotalEl = document.getElementById('kpi-total-el');
 const kpiCar = document.getElementById('kpi-car');
 const kpiLtdRatio = document.getElementById('kpi-ltd-ratio');
 
-// --- Filter Elements for Dashboard ---
+// --- Filter Elements ---
 const filterIndustrySelect = document.getElementById('filter-industry');
 const filterProvinceSelect = document.getElementById('filter-province');
 const filterLoanMinInput = document.getElementById('filter-loan-min');
@@ -43,188 +43,174 @@ const resetFilterBtn = document.getElementById('reset-filter-btn');
 
 // --- Chart Instances ---
 let nplChartInstance, industryChartInstance, provinceChartInstance, collateralChartInstance;
-let assetConcentrationChartInstance; // تمرکز انواع وثایق
-let nonPerformingLoansCountChartInstance; //  تسهیلات غیرجاری در صنایع (تعداد)
-let nonPerformingLoansAmountChartInstance; //  تسهیلات غیرجاری در صنایع (مبلغ)
+let assetConcentrationChartInstance, nonPerformingLoansCountChartInstance, nonPerformingLoansAmountChartInstance;
 
-// Define a color palette for charts with good contrast
 const chartColors = [
-    'rgba(75, 192, 192, 0.8)', // Teal
-    'rgba(255, 99, 132, 0.8)', // Red
-    'rgba(54, 162, 235, 0.8)', // Blue
-    'rgba(255, 206, 86, 0.8)', // Yellow
-    'rgba(153, 102, 255, 0.8)', // Purple
-    'rgba(255, 159, 64, 0.8)', // Orange
-    'rgba(0, 204, 102, 0.8)',  // Green
-    'rgba(204, 0, 204, 0.8)',  // Magenta
-    'rgba(102, 0, 204, 0.8)',  // Dark Purple
-    'rgba(255, 51, 0, 0.8)',   // Bright Red
-    'rgba(0, 153, 204, 0.8)',  // Light Blue
-    'rgba(153, 204, 0, 0.8)',  // Lime Green
-    'rgba(204, 51, 0, 0.8)',   // Orange-Red
-    'rgba(51, 102, 204, 0.8)'  // Dodger Blue
+  'rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
+  'rgba(255, 206, 86, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+  'rgba(0, 204, 102, 0.8)', 'rgba(204, 0, 204, 0.8)', 'rgba(102, 0, 204, 0.8)',
+  'rgba(255, 51, 0, 0.8)', 'rgba(0, 153, 204, 0.8)', 'rgba(153, 204, 0, 0.8)', 'rgba(204, 51, 0, 0.8)', 'rgba(51, 102, 204, 0.8)'
 ];
 
-// Border colors (slightly darker for contrast)
 const chartBorderColors = chartColors.map(color => color.replace('0.8', '1'));
 
-// --- Loading Spinner Element ---
 const loadingSpinner = document.getElementById('loading-spinner');
+function showLoading() { loadingSpinner.classList.remove('hidden'); }
+function hideLoading() { loadingSpinner.classList.add('hidden'); }
 
-// --- Loading Spinner Functions ---
-function showLoading() {
-    loadingSpinner.classList.remove('hidden');
-}
-
-function hideLoading() {
-    loadingSpinner.classList.add('hidden');
-}
-
-// --- Navigation Functions ---
 function showPage(pageElement) {
-    console.log("Attempting to show page:", pageElement ? pageElement.id : "null");
-    const pages = document.querySelectorAll('.page');
-    pages.forEach(page => page.classList.add('hidden')); // مطمئن شوید همه صفحات مخفی می‌شوند
-
-    if (pageElement) {
-        pageElement.classList.remove('hidden'); // صفحه مورد نظر را نمایش می‌دهد
-        pageElement.classList.add('active'); // اطمینان از فعال بودن کلاس active
-    }
-
-    // پنهان کردن نتایج پیش‌بینی و پیام خطا هر زمان که صفحه جدیدی نمایش داده می‌شود
-    predictionResults.classList.add('hidden');
-    predictionError.textContent = '';
+  const pages = document.querySelectorAll('.page');
+  pages.forEach(page => page.classList.add('hidden'));
+  if (pageElement) {
+    pageElement.classList.remove('hidden');
+    pageElement.classList.add('active');
+  }
+  predictionResults.classList.add('hidden');
+  predictionError.textContent = '';
 }
 
 function setActiveNav(navElement) {
-    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active-nav'));
-    if (navElement) {
-        navElement.classList.add('active-nav');
-    }
+  document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active-nav'));
+  if (navElement) navElement.classList.add('active-nav');
 }
 
-
-// --- Authentication ---
 loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-    if (username === 'admin' && password === 'admin') {
-        localStorage.setItem('isAuthenticated', 'true');
-        loginError.textContent = '';
-        loginPage.classList.add('hidden'); // صفحه ورود را مخفی کن
-        mainContent.classList.remove('hidden'); // محتوای اصلی را نمایش بده
+  if (username === 'admin' && password === 'admin') {
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('loggedInUser', username);
+    loginError.textContent = '';
+    loginPage.classList.add('hidden');
+    mainContent.classList.remove('hidden');
+    showPage(customerValidationPage);
+    setActiveNav(navPredict);
 
-        showPage(customerValidationPage); // نمایش صفحه اعتبارسنجی مشتری
-        setActiveNav(navPredict);
-    } else {
-        loginError.textContent = 'نام کاربری یا رمز عبور اشتباه است.';
-    }
+    // --- Log login event ---
+    fetch(`${API_BASE_URL}/log_user_action/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: username,
+        action: 'login',
+        ip_address: '127.0.0.1'
+      })
+    });
+
+  } else {
+    loginError.textContent = 'نام کاربری یا رمز عبور اشتباه است.';
+  }
 });
 
 navLogout.addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.removeItem('isAuthenticated');
-    mainContent.classList.add('hidden'); // محتوای اصلی را مخفی کن
-    showPage(loginPage); // فقط صفحه ورود را نمایش بده
-    setActiveNav(null); // حالت فعال نوار ناوبری را پاک کن
+  e.preventDefault();
+  const username = localStorage.getItem('loggedInUser') || 'anonymous';
+
+  // --- Log logout event ---
+  fetch(`${API_BASE_URL}/log_user_action/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: username,
+      action: 'logout',
+      ip_address: '127.0.0.1'
+    })
+  });
+
+  localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('loggedInUser');
+  mainContent.classList.add('hidden');
+  showPage(loginPage);
+  setActiveNav(null);
 });
 
-// Check authentication on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // ابتدا مطمئن شوید همه صفحات پنهان هستند
-    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-
-    if (localStorage.getItem('isAuthenticated') === 'true') {
-        // اگر کاربر لاگین کرده است، صفحه اصلی محتوا را نمایش بده
-        loginPage.classList.add('hidden'); // صفحه ورود را مخفی کن
-        mainContent.classList.remove('hidden'); // محتوای اصلی را نمایش بده
-        showPage(customerValidationPage); // نمایش صفحه اعتبارسنجی مشتری
-        setActiveNav(navPredict);
-    } else {
-        // اگر لاگین نکرده است، فقط صفحه ورود را نمایش بده
-        showPage(loginPage);
-        mainContent.classList.add('hidden'); // مطمئن شوید محتوای اصلی مخفی است
-        setActiveNav(null);
-    }
+  document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+  if (localStorage.getItem('isAuthenticated') === 'true') {
+    loginPage.classList.add('hidden');
+    mainContent.classList.remove('hidden');
+    showPage(customerValidationPage);
+    setActiveNav(navPredict);
+  } else {
+    showPage(loginPage);
+    mainContent.classList.add('hidden');
+    setActiveNav(null);
+  }
 });
 
-// --- Navigation Event Listeners ---
 navPredict.addEventListener('click', (e) => {
-    e.preventDefault();
-    showPage(customerValidationPage); // نمایش صفحه اعتبارسنجی مشتری
-    setActiveNav(navPredict);
+  e.preventDefault();
+  showPage(customerValidationPage);
+  setActiveNav(navPredict);
 });
 
 navDashboard.addEventListener('click', async (e) => {
-    e.preventDefault();
-    showPage(dashboardPage); // نمایش صفحه داشبورد
-    setActiveNav(navDashboard);
-    await fetchDashboardData(); // داده‌ها را هنگام نمایش داشبورد بارگذاری کن
+  e.preventDefault();
+  showPage(dashboardPage);
+  setActiveNav(navDashboard);
+  await fetchDashboardData();
 });
 
-
-// --- PD Prediction Form Submission ---
 pdPredictionForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    predictionError.textContent = '';
+  e.preventDefault();
+  predictionError.textContent = '';
+  predictionResults.classList.add('hidden');
+  showLoading();
+
+  const formData = new FormData(pdPredictionForm);
+  const data = {};
+  for (let [key, value] of formData.entries()) {
+    if (["person_age", "person_income", "person_emp_exp", "loan_amnt", "loan_int_rate", "loan_percent_income", "cb_person_cred_hist_length", "credit_score"].includes(key)) {
+      data[key] = parseFloat(value);
+    } else {
+      data[key] = value;
+    }
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/predict_pd/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`خطا در پیش‌بینی PD: ${response.status}`);
+    }
+
+    const result = await response.json();
+    pdValueSpan.textContent = `${(result.pd_probability * 100).toFixed(2)}%`;
+    pdProgressBar.style.width = `${(result.pd_probability * 100).toFixed(2)}%`;
+    riskCategorySpan.textContent = result.risk_category;
+    predictionResults.classList.remove('hidden');
+
+    // --- Log user action to Supabase ---
+    fetch(`${API_BASE_URL}/log_user_action/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: localStorage.getItem('loggedInUser') || 'anonymous',
+        action: 'predict_pd',
+        ip_address: '127.0.0.1'
+      })
+    })
+    .then(res => res.json())
+    .then(data => console.log("✅ لاگ ثبت شد:", data))
+    .catch(err => console.error("❌ خطا در ثبت لاگ:", err));
+
+  } catch (error) {
+    predictionError.textContent = error.message;
     predictionResults.classList.add('hidden');
-    showLoading(); // نمایش اسپینر
-
-    const formData = new FormData(pdPredictionForm);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-        // Convert numeric fields to float, others keep as string
-        if (['person_age', 'person_income', 'person_emp_exp', 'loan_amnt', 'loan_int_rate', 'loan_percent_income', 'cb_person_cred_hist_length', 'credit_score'].includes(key)) {
-            data[key] = parseFloat(value);
-        } else {
-            data[key] = value;
-        }
-    }
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/predict_pd/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`خطا در پیش‌بینی PD: ${response.status} - ${errorText}`);
-        }
-
-        const result = await response.json();
-
-        pdValueSpan.textContent = (result.pd_probability * 100).toFixed(2);
-        riskCategorySpan.textContent = result.risk_category;
-
-        // Update progress bar
-        const pdPercentage = result.pd_probability * 100;
-        pdProgressBar.style.width = `${pdPercentage}%`;
-
-        // Change color based on risk category
-        let barColor = '#28a745'; // Green for Low
-        if (result.risk_category === 'بسیار پایین') barColor = '#4CAF50';
-        else if (result.risk_category === 'پایین') barColor = '#8BC34A';
-        else if (result.risk_category === 'متوسط') barColor = '#ffc107';
-        else if (result.risk_category === 'بالا') barColor = '#ff9800';
-        else if (result.risk_category === 'بسیار بالا') barColor = '#dc3545';
-        pdProgressBar.style.backgroundColor = barColor;
-
-        predictionResults.classList.remove('hidden');
-
-    } catch (error) {
-        console.error("Error:", error);
-        predictionError.textContent = error.message;
-        predictionResults.classList.add('hidden');
-    } finally {
-        hideLoading(); // پنهان کردن اسپینر
-    }
+  } finally {
+    hideLoading();
+  }
 });
+
+
 
 // --- Dashboard Data Fetching and Chart Rendering ---
 
